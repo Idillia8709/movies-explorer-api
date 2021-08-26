@@ -1,1 +1,3 @@
-# movies-explorer-api
+Репозиторий для  бэкенд части приложения :
+- публичный IP-адрес сервера: 84.252.141.118,
+-  серверная часть: https://MihaylovaSvetlana.nomoredomains.monster 
