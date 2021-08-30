@@ -23,66 +23,28 @@ module.exports.getUserInfo = (req, res, next) => {
         name: user.name,
       });
     })
-    .catch((error) => {
-      if (error.name === 'CastError') {
-        next(new BadRequestError(BAD_REQUEST));
-      } else next(error);
-    });
+    .catch(next);
 };
 
 module.exports.changeUser = (req, res, next) => {
   const userId = req.user._id;
   const newName = req.body.name;
   const newEmail = req.body.email;
-  User.findByIdAndUpdate(
-    { _id: userId },
-    { name: newName, email: newEmail },
-    { new: true, runValidators: true },
-  )
-    .then((user) => {
-      if (user) {
-        res.send({
-          email: user.email,
-          name: user.name,
-        });
-      }
-    })
-    .catch((error) => {
-      if (error.name === 'CastError' || error.name === 'ValidationError') {
-        next(new BadRequestError(BAD_REQUEST));
-      }
-      if (error.message === 'PageNotFound') {
-        next(new NotFoundError(NOT_FOUND));
-      } else next(error);
-    });
-};
-
-module.exports.createUser = (req, res, next) => {
-  const {
-    email,
-    password,
-    name,
-  } = req.body;
-  if (!email || !password || !name) throw new BadRequestError(BAD_REQUEST);
-  User.findOne({ email })
-    .then((mail) => {
-      if (mail) throw new ConflictError(CONFLICT);
-      bcrypt.hash(password, 10)
-        .then((hash) => {
-          User.create({
-            name, email, password: hash,
-          })
-            .then((user) => {
-              res.send({
-                name: user.name,
-                email: user.email,
-              });
-            })
-            .catch((error) => {
-              if (error.name === 'CastError' || error.name === 'ValidationError') {
-                next(new BadRequestError(BAD_REQUEST));
-              } else next(error);
+  User.findOne({ email: newEmail })
+    .then((email) => {
+      if (email) throw new ConflictError(CONFLICT);
+      User.findByIdAndUpdate(
+        { _id: userId },
+        { name: newName, email: newEmail },
+        { new: true, runValidators: true },
+      )
+        .then((user) => {
+          if (user) {
+            res.send({
+              email: user.email,
+              name: user.name,
             });
+          }
         })
         .catch((error) => {
           if (error.name === 'CastError' || error.name === 'ValidationError') {
@@ -93,10 +55,41 @@ module.exports.createUser = (req, res, next) => {
     .catch(next);
 };
 
+module.exports.createUser = (req, res, next) => {
+  const {
+    email,
+    password,
+    name,
+  } = req.body;
+  if (!email || !password || !name) throw new BadRequestError(BAD_REQUEST);
+  User.findOne({ email })
+    .then(async (mail) => {
+      if (mail) throw new ConflictError(CONFLICT);
+      try {
+        const hash = await bcrypt.hash(password, 10);
+        User.create({
+          name, email, password: hash,
+        })
+          .then((user) => {
+            res.status(201).send({
+              name: user.name,
+              email: user.email,
+            });
+          });
+      } catch (error) {
+        if (error.name === 'CastError' || error.name === 'ValidationError') {
+          next(new BadRequestError(BAD_REQUEST));
+        } else next(error);
+      }
+    })
+    .catch(next);
+};
+
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
+      console.log(user);
       const token = jwt.sign({ _id: user._id }, CURRENT_JWT_SECRET, { expiresIn: '7d' });
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
