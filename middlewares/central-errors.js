@@ -1,6 +1,3 @@
-const NotFoundError = require('../errors/not-found-err');
-const { NOT_FOUND } = require('../configs/errors');
-
 module.exports = (error, req, res, next) => {
   const { message } = error;
   const statusCode = error.statusCode || 500;
@@ -12,5 +9,5 @@ module.exports = (error, req, res, next) => {
         : message,
     });
 
-  next(new NotFoundError(NOT_FOUND));
+  next();
 };
