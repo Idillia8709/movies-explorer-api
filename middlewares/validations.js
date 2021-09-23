@@ -1,5 +1,4 @@
 const { celebrate, Joi } = require('celebrate');
-const isURL = require('validator/lib/isURL');
 
 const signupValidator = celebrate({
   body: Joi.object().keys({
@@ -30,26 +29,52 @@ const createMovieValidator = celebrate({
     duration: Joi.number().required(),
     year: Joi.string().required(),
     description: Joi.string().required(),
-    image: Joi.string().required().custom((value, helpers) => {
-      if (isURL(value, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true })) {
+    image: Joi.string()
+      .required()
+      .uri()
+      .custom((value, helper) => {
+        const regExp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gm;
+        if (!value.match(regExp)) {
+          return helper.message('Поле "image" содержит некорректные данные');
+        }
         return value;
-      }
-      return helpers.message('Неверный формат ссылки');
-    }),
-    trailer: Joi.string().required().custom((value, helpers) => {
-      if (isURL(value, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true })) {
+      })
+      .messages({
+        'string.empty': 'Поле "image" должно быть заполнено',
+        'any.required': 'Поле "image" обязательное для заполнения',
+      }),
+    trailer: Joi.string()
+      .required()
+      .uri()
+      .custom((value, helper) => {
+        const regExp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gm;
+        if (!value.match(regExp)) {
+          return helper.message('Поле "trailer" содержит некорректные данные');
+        }
         return value;
-      }
-      return helpers.message('Неверный формат ссылки');
-    }),
+      })
+      .messages({
+        'string.empty': 'Поле "trailer" должно быть заполнено',
+        'any.required': 'Поле "trailer" обязательное для заполнения',
+      }),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
-    thumbnail: Joi.string().required().custom((value, helpers) => {
-      if (isURL(value, { protocols: ['http', 'https', 'ftp'], require_tld: true, require_protocol: true })) {
+    thumbnail: Joi.string()
+      .required()
+      .uri()
+      .custom((value, helper) => {
+        const regExp = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/gm;
+        if (!value.match(regExp)) {
+          return helper.message(
+            'Поле "thumbnail" содержит некорректные данные',
+          );
+        }
         return value;
-      }
-      return helpers.message('Неверный формат ссылки');
-    }),
+      })
+      .messages({
+        'string.empty': 'Поле "thumbnail" должно быть заполнено',
+        'any.required': 'Поле "thumbnail" обязательное для заполнения',
+      }),
     movieId: Joi.number().required(),
   }),
 });
