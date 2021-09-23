@@ -12,8 +12,8 @@ const centrallError = require('./middlewares/central-errors');
 const app = express();
 
 const allowedCors = [
-  'https://home-page-student.nomoredomains.club/',
-  'https://home-page-student.nomoredomains.club/',
+  'https://home-page-student.nomoredomains.club',
+  'https://home-page-student.nomoredomains.club',
   'http://localhost:3000',
   'https://localhost:3000',
 ];
