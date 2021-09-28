@@ -90,13 +90,13 @@ module.exports.login = (req, res, next) => {
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, CURRENT_JWT_SECRET, { expiresIn: '7d' });
-      res.cookie('jwt', token, {
+      res.cookie('token', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
-        sameSite: true,
+        sameSite: 'none',
         secure: true,
       })
-        .send({ token });
+        .send({ message: 'Вы успешно авторизовались' });
     })
     .catch(() => {
       throw new UnauthorizedError(UNAUTHORIZED);
@@ -104,6 +104,11 @@ module.exports.login = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.userLogout = (req, res) => {
-  res.clearCookie('token').send({ message: 'Выполнен выход' });
+module.exports.userLogout = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) throw new NotFoundError(NOT_FOUND);
+      return res.clearCookie('token').send({ message: 'Выполнен выход' });
+    })
+    .catch(next);
 };

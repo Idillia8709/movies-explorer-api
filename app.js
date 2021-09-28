@@ -11,6 +11,8 @@ const centrallError = require('./middlewares/central-errors');
 
 const app = express();
 
+app.use(cookieParser());
+
 const allowedCors = [
   'https://home-page-student.nomoredomains.club',
   'https://home-page-student.nomoredomains.club',
@@ -42,7 +44,6 @@ app.use(helmet());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 
 mongoose.connect(BASE_URL, {
   useNewUrlParser: true,

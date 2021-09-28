@@ -5,7 +5,7 @@ const { UNAUTHORIZED } = require('../configs/errors');
 const { CURRENT_JWT_SECRET } = require('../configs/index');
 
 module.exports = (req, res, next) => {
-  const extractToken = req.cookies.jwt;
+  const extractToken = req.cookies.token;
   if (!extractToken) {
     throw new UnauthorizedError(UNAUTHORIZED);
   }
