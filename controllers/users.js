@@ -96,7 +96,7 @@ module.exports.login = (req, res, next) => {
         sameSite: true,
         secure: true,
       })
-        .send({ answer: 'cookie' });
+        .send({ token });
     })
     .catch(() => {
       throw new UnauthorizedError(UNAUTHORIZED);
@@ -105,9 +105,5 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.userLogout = (req, res) => {
-  res.clearCookie('jwt', {
-    httpOnly: true,
-    sameSite: true,
-  })
-    .end();
+  res.clearCookie('token').send({ message: 'Выполнен выход' });
 };
