@@ -108,7 +108,12 @@ module.exports.userLogout = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) throw new NotFoundError(NOT_FOUND);
-      return res.clearCookie('token').send({ message: 'Выполнен выход' });
+      return res.clearCookie('token', {
+        httpOnly: true,
+        sameSite: 'None',
+        secure: true,
+      })
+        .send({ message: 'Выполнен выход' });
     })
     .catch(next);
 };
